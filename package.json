@@ -2,14 +2,19 @@
   "name": "backend-tutorial",
   "version": "1.0.0",
   "description": "Creating an advance backend project by following Hitesh (chai aur code) ",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/index.js"
   },
   "keywords": [
     "javascript",
     "backend"
   ],
   "author": "Shubhankar",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
 }
+ 
