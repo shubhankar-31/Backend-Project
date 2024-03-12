@@ -11,7 +11,20 @@ const app=express();
 // Second Approach to connect a DB
 import connectDB from "./db/db.js";
 
-connectDB();
+//technically this returns a promise
+connectDB()
+.then(()=>{
+    app.on("error",(error)=>{
+        console.error("ERROR",error);
+        throw error;
+    });
+    app.listen(process.env.PORT || 8000,()=>{
+        console.log(`App running at ${process.env.PORT}`);
+    });
+})
+.catch((err)=>{
+    console.log("Mongo DB connection failed", err);
+});
 
 
 
@@ -19,15 +32,16 @@ connectDB();
 
 // First Approach to connect to a DB using IIFE
 
-// sometimes dev's start and IIFE with a semi colon like 
+// sometimes dev's start an IIFE with a semi colon like 
 //;(async () => {})();
 // but we don't need it here 
 
-/*
-import mongoose from "mongoose";
-import {DB_NAME} from "./constants";
 
-(async () => {
+/* import mongoose from "mongoose";
+import {DB_NAME} from "./constants.js";
+
+(
+    async () => {
     try {
        await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`);
         app.on("error",(error)=>{
@@ -42,5 +56,5 @@ import {DB_NAME} from "./constants";
         console.error("ERROR",error);
         throw error;
     } 
-})();
-*/
+}
+)(); */
