@@ -11,9 +11,10 @@ const app=express();
 // Second Approach to connect a DB
 import connectDB from "./db/db.js";
 
-//technically this returns a promise
+//technically connectDB returns a promise
 connectDB()
 .then(()=>{
+    // this is just a event handler 
     app.on("error",(error)=>{
         console.error("ERROR",error);
         throw error;
