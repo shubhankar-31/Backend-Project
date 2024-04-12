@@ -17,13 +17,12 @@ const uploadOnCloudinary=async (filePath)=>{
         const response = await cloudinary.uploader.upload(filePath,{
             resource_type:"auto"
         });
-        //file has been uploaded 
-        console.log("File is uploaded on cloudinary",response.url);
+        fs.unlinkSync(filePath);
         return response;
     } 
     catch (error) {
         fs.unlinkSync(filePath);
-        // removing the locally saved temporary file and upload operation failed. 
+        // removing the locally saved temporary file as the upload operation failed. 
         return null;
     }
 }
