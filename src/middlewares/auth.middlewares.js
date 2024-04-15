@@ -3,15 +3,18 @@ import { asyncHandler } from "../utils/asyncHandlers.js";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.models.js";
 
-// This middle ware will basically verify whether user is logged in or not 
-
+// This middleware will basically verify whether user is logged in or not 
+/* Since we have used app.use(cookieParser()) the req object will also have access to cookies
+    So, with this object we now have access to ACCESS & REFRESH Tokens
+    and finally we can verify the user with his ACCESS tokens.
+*/
 
 // Somtimes we'll find that res is not being used so we can replace it
 // with an underscore (_)
-export const verifyJWT=asyncHandler(async (req,res,next)=>{
+export const verifyJWT=asyncHandler(async (req, _,next)=>{
     try {
-        const token=req.cookies?.AccessToken || req.header("Authorization")?.replace("Bearer ","");
-    
+        const token=req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","");
+
         if(!token)throw new ApiError(404,"Unauthorized Request");
     
         const decodedToken=await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
@@ -24,6 +27,6 @@ export const verifyJWT=asyncHandler(async (req,res,next)=>{
         next();
     } 
     catch (error) {
-        throw new ApiError(401,"Invalid access token");
+        throw new ApiError(401,error?.message || "Invalid access token");
     }
 });
