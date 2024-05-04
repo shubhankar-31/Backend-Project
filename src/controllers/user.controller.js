@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.models.js";
 import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/fileUpload.js";
-import { jwt } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
 const generateAccessAndRefreshTokens= async(userID)=>{
@@ -148,6 +148,7 @@ const loginUser=asyncHandler (async (req,res)=>{
         secure:true
     }
 
+    console.log(`A user with ${email},${username} and ${password} logged in `);
     return res.status(200)
     .cookie("accessToken",AccessToken,options)
     .cookie("refreshToken",RefreshToken,options)
@@ -188,7 +189,7 @@ const logoutUser= asyncHandler(async (req,res)=>{
         httpOnly: true,
         secure: true
     }
-
+    console.log("A user Logged Out");
     return res
     .status(200)
     .clearCookie("accessToken", options)
@@ -236,7 +237,7 @@ const refreshAccessToken=asyncHandler(async (req,res)=>{
 });
 
 const changeCurrentUserPassword=asyncHandler(async (req,res)=>{
-    const{oldPass,newPass,confPass}=req.body;
+    const {oldPass,newPass,confPass}=req.body;
 
     if(newPass!==confPass)
         throw new ApiError(400,"New Password and Conformation password did not match");
@@ -245,11 +246,11 @@ const changeCurrentUserPassword=asyncHandler(async (req,res)=>{
 
     const passwordCorrect=await user.isPasswordCorrect(oldPass);
     if(!passwordCorrect)
-        throw new ApiError(400,"Invalid Password");
+        throw new ApiError(400,"Invalid old Password");
 
     user.password=newPass;
     await user.save({validateBeforeSave:false});
-
+    console.log("Password changed of a logged in user");
     return res
     .status(200)
     .json(new ApiResponse(200,{},"Password was changed successfully"));
@@ -263,9 +264,9 @@ const getCurrentUser=asyncHandler(async (req,res)=>{
 });
 
 const updateAccDetail=asyncHandler(async (req,res)=>{
-    const {fullName,email}=req.body;
+    const {fullName,email} =req.body;
 
-    if(!username && !email)
+    if(!fullName && !email)
         throw new ApiError(400,"All fields are required");
 
         const user= await User.findByIdAndUpdate(
@@ -424,27 +425,27 @@ const getWatchHistory=asyncHandler(async(req,res)=>{
         {
             $match:{
                 _id: new mongoose.Types.ObjectId(req.user._id)
-            },
+            }
         },
         {
-            $lookup:{
-                from:"videos",
-                localField:"watchHistory",
-                foreignField:"_id",
-                as:"watchHistory",
-                pipeline:[
+            $lookup: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
                     {
-                        $lookup:{
-                            from:"users",
-                            localField:"owner",
-                            foreignField:"_id",
-                            as:"owner",
-                            pipline:[
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
                                 {
-                                    $project:{
-                                        fullName:1,
-                                        userName:1,
-                                        avatar:1,
+                                    $project: {
+                                        fullName: 1,
+                                        userName: 1,
+                                        avatar: 1
                                     }
                                 }
                             ]
@@ -453,7 +454,7 @@ const getWatchHistory=asyncHandler(async(req,res)=>{
                     {
                         $addFields:{
                             owner:{
-                                $first:"$owner"
+                                $first: "$owner"
                             }
                         }
                     }
